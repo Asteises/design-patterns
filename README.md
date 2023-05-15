@@ -236,3 +236,97 @@ public class MathProxy implements IMath {
     }
 }
 ```
+
+## Абстрактная фабрика (Abstract Factory)
+
+Порождающий шаблон проектирования, предоставляет интерфейс для создания семейств взаимосвязанных или взаимозависимых объектов, не специфицируя их конкретных классов. Шаблон реализуется созданием абстрактного класса Factory, который представляет собой интерфейс для создания компонентов системы.
+
+Другими словами, эта модель позволяет нам создавать объекты, которые следуют общему шаблону.
+
+### Пример
+
+```
+// Создаем простой интерфейс Animal
+public interface Animal {
+    String getAnimal();
+    String makeSound();
+}
+
+// Создаем конкретный класс Duck и наследуемся от интерфейса Animal
+public class Duck implements Animal {
+
+    @Override
+    public String getAnimal() {
+        return "Duck";
+    }
+
+    @Override
+    public String makeSound() {
+        return "Squeks";
+    }
+}
+
+// Создаем простой интерфейс Colour
+public interface Colour {
+     String getColour();
+}
+
+// Создаем конкретный класс White и наследуемся от интерфейса Colour
+public class White implements Colour {
+
+    @Override
+    public String getColour() {
+        return "White";
+    }
+}
+
+// Создаем интерфейс AbstractFactory
+public interface AbstractFactory<T> {
+    T create(String animalType) ;
+}
+
+// Реализуем шаблон Фабрика для Animal
+public class AnimalFactory implements AbstractFactory<Animal> {
+
+    @Override
+    public Animal create(String animalType) {
+        if ("Dog".equalsIgnoreCase(animalType)) {
+            return new Dog();
+        } else if ("Duck".equalsIgnoreCase(animalType)) {
+            return new Duck();
+        }
+
+        return null;
+    }
+}
+
+// Реализуем шаблон Фабрика для Colour
+public class ColourFactory implements AbstractFactory<Colour> {
+
+    @Override
+    public Colour create(String colourType) {
+        if ("White".equalsIgnoreCase(colourType)) {
+            return new White();
+        } else if ("Red".equalsIgnoreCase(colourType)) {
+            return new Red();
+        }
+
+        return null;
+    }
+}
+
+// Так будет выглядеть шаблон Абстрактной фабрики для наших фабрик Animal и Colour - по сути это фабрика фабрик
+public class FactoryProvider {
+    public static AbstractFactory getFactory(String choice){
+        
+        if("Animal".equalsIgnoreCase(choice)){
+            return new AnimalFactory();
+        }
+        else if("Color".equalsIgnoreCase(choice)){
+            return new ColorFactory();
+        }
+        
+        return null;
+    }
+}
+```
