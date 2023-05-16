@@ -345,3 +345,61 @@ public class FactoryProvider {
 + все сообщения должны быть обработаны хотя бы одним объектом системы;
 + сообщения в системе обрабатываются по схеме «обработай сам либо перешли другому», то есть одни сообщения обрабатываются на том уровне, где они получены, а другие пересылаются объектам иного уровня.
 
+### Пример
+
+Предположим, что мы пишем приложение для аутентификации пользователей.
+
+```
+// Создаем абстрактный базовый класс AuthenticationProcessor
+public abstract class AuthenticationProcessor {
+
+    public AuthenticationProcessor nextProcessor;
+    
+    // standard constructors
+
+    public abstract boolean isAuthorized(AuthenticationProvider authProvider);
+}
+
+// Создаем конкретные классы и наследуемся от AuthenticationProcessor
+public class OAuthProcessor extends AuthenticationProcessor {
+
+    public OAuthProcessor(AuthenticationProcessor nextProcessor) {
+        super(nextProcessor);
+    }
+
+    @Override
+    public boolean isAuthorized(AuthenticationProvider authProvider) {
+        if (authProvider instanceof OAuthTokenProvider) {
+            return true;
+        } else if (nextProcessor != null) {
+            return nextProcessor.isAuthorized(authProvider);
+        }
+        
+        return false;
+    }
+}
+
+// В каждом классе мы переопределяем метод isAuthorized
+public class UsernamePasswordProcessor extends AuthenticationProcessor {
+
+    public UsernamePasswordProcessor(AuthenticationProcessor nextProcessor) {
+        super(nextProcessor);
+    }
+
+    @Override
+    public boolean isAuthorized(AuthenticationProvider authProvider) {
+        if (authProvider instanceof UsernamePasswordProvider) {
+            return true;
+        } else if (nextProcessor != null) {
+            return nextProcessor.isAuthorized(authProvider);
+        }
+    return false;
+    }
+}
+```
+
+### Когда применять
+
++ Когда программа должна обрабатывать разнообразные запросы несколькими способами, но заранеен не известно, какие именно запросы будут приходить и какие обработчики для них понадобяться.
++ Когда важно, чтобы обработчики обрабатывались один за другим в строгом порядке.
++ Когда набор объектов, способных обработать запрос, должен задаваться динамически.
